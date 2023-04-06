@@ -1,9 +1,13 @@
 import os
+import re
 import json
 import readline
 import argparse
 import openai
-
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.lexers import guess_lexer
+from pygments.formatters import Terminal256Formatter
 
 readline.parse_and_bind('"\e[D": backward-char')
 readline.parse_and_bind('"\e[C": forward-char')
@@ -41,7 +45,7 @@ def ask(model: str = "gpt-3.5-turbo"):
                 messages=messages,
             )
             response = response["choices"][0]["message"]["content"]
-            print("\n" + response)
+            print("\n" + colorize_snippets(response))
             messages.append({"role": "system", "content": response})
         else:
             print("invalid input. retrying...")
@@ -56,6 +60,22 @@ def command_line_input(
         messages=messages + [{"role": "user", "content": q}],
     )
     print(response["choices"][0]["message"]["content"])
+
+
+def colorize(code):
+    code_only = "\n".join(code.split("\n")[1:-1])
+    lexer = guess_lexer(code_only)
+    return highlight(code, lexer, Terminal256Formatter(style="monokai"))
+
+
+def colorize_snippets(data):
+    pattern = re.compile(r"```[a-z]*\n([\s\S]*?)\n```")
+    code_match = re.search(pattern, data)
+    if code_match:
+        for code in re.finditer(pattern, data):
+            colorized_code = colorize(code.group(0))
+            data = data.replace(code.group(0), colorized_code)
+    return data
 
 
 if __name__ == "__main__":
