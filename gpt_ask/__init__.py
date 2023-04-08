@@ -100,7 +100,7 @@ def colorize_snippets(data):
     return data, code_samples
 
 
-if __name__ == "__main__":
+def run():
     parser = argparse.ArgumentParser(
         description="GPT cli single shot or interactive mode by default"
     )
@@ -133,3 +133,7 @@ if __name__ == "__main__":
             ask()
         except KeyboardInterrupt:
             print("bye!")
+
+
+if __name__ == "__main__":
+    run()
